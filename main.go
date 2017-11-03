@@ -94,7 +94,7 @@ func run(ctx *cli.Context) error {
 
 		d, err := disk.Usage(diskPath)
 		if err != nil {
-			reportError(fmt.Sprintf("Failed to retrieve disk usage for %s: %v", ctx.String("disk-path"), err))
+			reportError(fmt.Sprintf("Failed to retrieve disk usage for %s: %v", diskPath, err))
 		} else {
 			reportStat("disk_used", float64(d.Used)/gb)
 			reportStat("disk_free", float64(d.Free)/gb)
