@@ -10,7 +10,6 @@ import (
 	"math"
 	"os"
 	"os/signal"
-	"strconv"
 	"syscall"
 	"time"
 
@@ -26,24 +25,28 @@ const (
 )
 
 const (
-	defaultIntervalSeconds = uint(60)
-	defaultDiskMountPath   = "/"
-	triggerTopic           = framework.TransducerPrefix + "/trigger"
-	intervalTopic          = framework.TransducerPrefix + "/interval"
+	defaultIntervalDuration = "60s"
+	defaultDiskMountPath    = "/"
+	triggerTopic            = framework.TransducerPrefix + "/trigger"
+	intervalTopic           = framework.TransducerPrefix + "/interval"
 )
 
 func run(ctx *cli.Context) error {
 	/* Setup Parameters */
-	reportIntervalSeconds := uint64(ctx.Uint("interval"))
 	diskPath := ctx.String("disk-path")
+	intervalDuration, err := time.ParseDuration(ctx.String("interval"))
+	if err != nil {
+		log.Fatalf("Failed to parse interval duration %s: %v", ctx.String("interval"), err)
+		return cli.NewExitError(nil, 1)
+	}
 
 	/* Setup Runtime Variables */
-	intervalChange := make(chan uint64)
+	intervalChange := make(chan time.Duration)
 
 	/* Set logging level */
 	log.SetLevel(log.Level(uint32(ctx.Int("log-level"))))
 
-	log.Info("Starting System Monitor Device")
+	log.Info("Starting System Monitor Device with interval of ", intervalDuration)
 
 	/* Start framework service client */
 	c, err := framework.StartDeviceClient(
@@ -111,12 +114,12 @@ func run(ctx *cli.Context) error {
 
 	/* Subscribe to interval topic */
 	err = c.Subscribe(intervalTopic, func(topic string, payload []byte) {
-		log.Debug("Received interval change")
-
 		strInterval := string(payload)
-		interval, err := strconv.ParseUint(strInterval, 10, 64)
+		log.Debug("Received interval change of ", strInterval)
+		interval, err := time.ParseDuration(strInterval)
 		if err != nil {
 			reportError(fmt.Sprintf("Failed to parse interval \"%s\": %v", strInterval, err))
+			return
 		}
 
 		intervalChange <- interval
@@ -131,10 +134,11 @@ func run(ctx *cli.Context) error {
 
 	for {
 		select {
-		case <-time.After(time.Second * time.Duration(reportIntervalSeconds)):
+		case <-time.After(intervalDuration):
 			doreport()
 		case interval := <-intervalChange:
-			reportIntervalSeconds = interval
+			intervalDuration = interval
+			log.Info("Changing interval to ", intervalDuration)
 			doreport()
 		case sig := <-signals:
 			log.WithField("signal", sig).Info("Received signal")
@@ -183,10 +187,10 @@ func main() {
 			Usage:  "debug=5, info=4, warning=3, error=2, fatal=1, panic=0",
 			EnvVar: "LOG_LEVEL",
 		},
-		cli.UintFlag{
+		cli.StringFlag{
 			Name:   "interval",
-			Value:  defaultIntervalSeconds,
-			Usage:  "Reporting interval in seconds",
+			Value:  defaultIntervalDuration,
+			Usage:  "Reporting interval in as Golang parseable duration. (60s or 1h45m)",
 			EnvVar: "INTERVAL",
 		},
 		cli.StringFlag{
