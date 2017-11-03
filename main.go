@@ -75,7 +75,7 @@ func run(ctx *cli.Context) error {
 		reportStat("error", value)
 	}
 	doreport := func() {
-		log.Debug("Doing Report")
+		log.Info("Doing Report")
 		gb := math.Pow(1024, 3)
 
 		v, err := mem.VirtualMemory()
@@ -101,7 +101,7 @@ func run(ctx *cli.Context) error {
 
 	/* Subscribe to trigger topic */
 	err = c.Subscribe(triggerTopic, func(topic string, payload []byte) {
-		log.Debug("Received trigger to push report")
+		log.Info("Received trigger to push report")
 		doreport()
 	})
 	if err != nil {
