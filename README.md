@@ -5,11 +5,13 @@ Currently, we report the following statistics/topics:
 * `mem_avaliable`
 * `mem_used`
 * `mem_usedpercent`
-
 * `disk_used`
 * `disk_free`
 * `disk_total`
 * `disk_usedpercent`
+* `load_1min`
+* `load_5min`
+* `load_15min`
 
 # Operational Notes
 * The interval can be changed dynamically through the `interval` topic of the

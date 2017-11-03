@@ -15,6 +15,7 @@ import (
 
 	"github.com/openchirp/framework"
 	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
@@ -99,6 +100,15 @@ func run(ctx *cli.Context) error {
 			reportStat("disk_free", float64(d.Free)/gb)
 			reportStat("disk_total", float64(d.Total)/gb)
 			reportStat("disk_usedpercent", v.UsedPercent)
+		}
+
+		l, err := load.Avg()
+		if err != nil {
+			reportError(fmt.Sprintf("Failed to retrieve cpu load: %v", err))
+		} else {
+			reportStat("load_1min", l.Load1)
+			reportStat("load_5min", l.Load5)
+			reportStat("load_15min", l.Load15)
 		}
 	}
 
