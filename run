@@ -1,0 +1,16 @@
+#!/bin/bash
+
+HOST=openchirp.andrew.cmu.edu
+
+export LOG_LEVEL=5
+export FRAMEWORK_SERVER=http://$HOST:7000
+export MQTT_SERVER=tls://$HOST:1883
+
+# Set the following two lines to your OpenChirp device id and device token
+export DEVICE_ID=ffffffffffffffffffffffff
+export DEVICE_TOKEN=ffffffffffffffffffffffffffffff
+
+
+# Build the binary first
+go build main.go
+exec ./example-device
