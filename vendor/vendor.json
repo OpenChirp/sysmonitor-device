@@ -1,0 +1,43 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "MqWreTqa8QYLvsPbtISuziPL5bQ=",
+			"path": "github.com/openchirp/framework",
+			"revision": "34d08a76a35c8276bbf55eced642bcc42ac2b814",
+			"revisionTime": "2017-11-03T20:41:43Z"
+		},
+		{
+			"checksumSHA1": "YtMZfqy81IsR/KhupUu5qM/hGWk=",
+			"path": "github.com/openchirp/framework/rest",
+			"revision": "34d08a76a35c8276bbf55eced642bcc42ac2b814",
+			"revisionTime": "2017-11-03T20:41:43Z"
+		},
+		{
+			"checksumSHA1": "T4uyVXPqCS5rj4vYLgv04as0Avw=",
+			"path": "github.com/shirou/gopsutil/disk",
+			"revision": "48fc5612898a1213aa5d6a0fb2d4f7b968e898fb",
+			"revisionTime": "2017-10-18T15:04:09Z"
+		},
+		{
+			"checksumSHA1": "p9EXxuL/vV13YRPfgTBA3B/68Vo=",
+			"path": "github.com/shirou/gopsutil/internal/common",
+			"revision": "48fc5612898a1213aa5d6a0fb2d4f7b968e898fb",
+			"revisionTime": "2017-10-18T15:04:09Z"
+		},
+		{
+			"checksumSHA1": "AjHUX2jUJ2lET9C0MvtBN6obhRM=",
+			"path": "github.com/shirou/gopsutil/load",
+			"revision": "48fc5612898a1213aa5d6a0fb2d4f7b968e898fb",
+			"revisionTime": "2017-10-18T15:04:09Z"
+		},
+		{
+			"checksumSHA1": "D4RSbimsKy7p2YEkM2T99FbqzPE=",
+			"path": "github.com/shirou/gopsutil/mem",
+			"revision": "48fc5612898a1213aa5d6a0fb2d4f7b968e898fb",
+			"revisionTime": "2017-10-18T15:04:09Z"
+		}
+	],
+	"rootPath": "github.com/openchirp/sysmonitor-device"
+}
