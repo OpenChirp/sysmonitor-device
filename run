@@ -10,7 +10,10 @@ export MQTT_SERVER=tls://$HOST:1883
 export DEVICE_ID=ffffffffffffffffffffffff
 export DEVICE_TOKEN=ffffffffffffffffffffffffffffff
 
+#export INTERVAL=60s
+#export DISK_PATH="/"
+
 
 # Build the binary first
-go build main.go
-exec ./example-device
+go build -o sysmonitor-device main.go
+exec ./sysmonitor-device
