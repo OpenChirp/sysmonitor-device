@@ -1,19 +1,22 @@
 // Craig Hesling
 // November 3, 2017
 //
-// This is an example OpenChirp device. It sets up arguments and runs a door
-// controller
+// This is an System Monitor OpenChirp device. It will report the system status
+// to an openchirp device at a scheduled interval.
 package main
 
 import (
 	"fmt"
-	"math/rand"
+	"math"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/openchirp/framework"
+	"github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/mem"
 	log "github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
@@ -22,11 +25,25 @@ const (
 	version string = "1.0"
 )
 
+const (
+	defaultIntervalSeconds = uint(60)
+	defaultDiskMountPath   = "/"
+	triggerTopic           = framework.TransducerPrefix + "/trigger"
+	intervalTopic          = framework.TransducerPrefix + "/interval"
+)
+
 func run(ctx *cli.Context) error {
+	/* Setup Parameters */
+	reportIntervalSeconds := uint64(ctx.Uint("interval"))
+	diskPath := ctx.String("disk-path")
+
+	/* Setup Runtime Variables */
+	intervalChange := make(chan uint64)
+
 	/* Set logging level */
 	log.SetLevel(log.Level(uint32(ctx.Int("log-level"))))
 
-	log.Info("Starting Example Device")
+	log.Info("Starting System Monitor Device")
 
 	/* Start framework service client */
 	c, err := framework.StartDeviceClient(
@@ -42,29 +59,83 @@ func run(ctx *cli.Context) error {
 	log.Info("Started device")
 
 	/* Setup signal channel */
-	// log.Info("Processing device updates")
 	signals := make(chan os.Signal)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 
-	/* Subscribe to door open topic */
-	err = c.Subscribe(framework.TransducerPrefix+"/open", func(topic string, payload []byte) {
-		value := string(payload)
-		log.Infof("Received open command %s", value)
+	/* Helper Methonds */
+	reportStat := func(subtopic string, value interface{}) {
+		log.Debugf("Publishing %s: %s", subtopic, fmt.Sprint(value))
+		err = c.Publish(framework.TransducerPrefix+"/"+subtopic, fmt.Sprint(value))
+		if err != nil {
+			log.Errorf("Error publishing %s: %v", subtopic, err)
+		}
+	}
+	reportError := func(value interface{}) {
+		log.Errorf(fmt.Sprint(value))
+		reportStat("error", value)
+	}
+	doreport := func() {
+		log.Debug("Doing Report")
+		gb := math.Pow(1024, 3)
+
+		v, err := mem.VirtualMemory()
+		if err != nil {
+			reportError(fmt.Sprintf("Failed to retrieve memory usage: %v", err))
+		} else {
+			reportStat("mem_total", float64(v.Total)/gb)
+			reportStat("mem_avaliable", float64(v.Available)/gb)
+			reportStat("mem_used", float64(v.Used)/gb)
+			reportStat("mem_usedpercent", v.UsedPercent)
+		}
+
+		d, err := disk.Usage(diskPath)
+		if err != nil {
+			reportError(fmt.Sprintf("Failed to retrieve disk usage for %s: %v", ctx.String("disk-path"), err))
+		} else {
+			reportStat("disk_used", float64(d.Used)/gb)
+			reportStat("disk_free", float64(d.Free)/gb)
+			reportStat("disk_total", float64(d.Total)/gb)
+			reportStat("disk_usedpercent", v.UsedPercent)
+		}
+	}
+
+	/* Subscribe to trigger topic */
+	err = c.Subscribe(triggerTopic, func(topic string, payload []byte) {
+		log.Debug("Received trigger to push report")
+		doreport()
 	})
 	if err != nil {
 		log.Fatalf("Error subscribing to open topic: %v", err)
 		return cli.NewExitError(nil, 1)
 	}
 
+	/* Subscribe to interval topic */
+	err = c.Subscribe(intervalTopic, func(topic string, payload []byte) {
+		log.Debug("Received interval change")
+
+		strInterval := string(payload)
+		interval, err := strconv.ParseUint(strInterval, 10, 64)
+		if err != nil {
+			reportError(fmt.Sprintf("Failed to parse interval \"%s\": %v", strInterval, err))
+		}
+
+		intervalChange <- interval
+
+	})
+	if err != nil {
+		log.Fatalf("Error subscribing to open topic: %v", err)
+		return cli.NewExitError(nil, 1)
+	}
+
+	doreport()
+
 	for {
 		select {
-		case <-time.After(time.Second * time.Duration(2)):
-			status := rand.Uint32() % 2
-			log.Debugf("Publishing status %v", status)
-			err = c.Publish(framework.TransducerPrefix+"/status", fmt.Sprint(status))
-			if err != nil {
-				log.Errorf("Error publishing status %v: %v", status, err)
-			}
+		case <-time.After(time.Second * time.Duration(reportIntervalSeconds)):
+			doreport()
+		case interval := <-intervalChange:
+			reportIntervalSeconds = interval
+			doreport()
 		case sig := <-signals:
 			log.WithField("signal", sig).Info("Received signal")
 			goto cleanup
@@ -111,6 +182,18 @@ func main() {
 			Value:  4,
 			Usage:  "debug=5, info=4, warning=3, error=2, fatal=1, panic=0",
 			EnvVar: "LOG_LEVEL",
+		},
+		cli.UintFlag{
+			Name:   "interval",
+			Value:  defaultIntervalSeconds,
+			Usage:  "Reporting interval in seconds",
+			EnvVar: "INTERVAL",
+		},
+		cli.StringFlag{
+			Name:   "disk-path",
+			Value:  defaultDiskMountPath,
+			Usage:  "The mount point of the disk to monitor",
+			EnvVar: "DISK_PATH",
 		},
 	}
 	app.Run(os.Args)
