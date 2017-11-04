@@ -12,6 +12,7 @@ export DEVICE_TOKEN=ffffffffffffffffffffffffffffff
 
 #export INTERVAL=60s
 #export DISK_PATH="/"
+#export PLUGIN_PATHS=plugins/raspberrypi.so
 
 
 # Build the binary first
