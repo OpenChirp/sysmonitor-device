@@ -26,3 +26,11 @@ A duration string is a possibly signed sequence of decimal numbers, each with
 optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m".
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
 ```
+
+# Plugins
+Plugins allow you to extend the list of reported values. Upon each interval,
+each of the specified plugins are queried for their report.
+Their reported topic/values are then published along with the previously
+mentioned hard coded values.
+To use a plugin, set `PLUGIN_PATHS` to the plugin file's path. To use multiple
+plugins simultaneously, simply list them separated by a semicolon.

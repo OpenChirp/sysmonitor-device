@@ -10,6 +10,8 @@ import (
 	"math"
 	"os"
 	"os/signal"
+	"plugin"
+	"strings"
 	"syscall"
 	"time"
 
@@ -17,7 +19,7 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -32,7 +34,47 @@ const (
 	intervalTopic           = framework.TransducerPrefix + "/interval"
 )
 
+func RunPlugins(log *logrus.Logger, paths []string) map[string]string {
+	allfields := make(map[string]string)
+	for _, path := range paths {
+		if path == "" {
+			continue
+		}
+		path = strings.TrimSpace(path)
+		logitem := log.WithField("plugin", path)
+		p, err := plugin.Open(path)
+		if err != nil {
+			logitem.Errorf("Failed to open plugin %s: %v", path, err)
+			continue
+		}
+		sym, err := p.Lookup("GetReport")
+		if err != nil {
+			logitem.Errorf("Failed to find GetReport function: %v", err)
+			continue
+		}
+
+		getreport, ok := sym.(func(log *logrus.Entry) map[string]string)
+		if !ok {
+			logitem.Errorf("GetReport function type is invalid: %v", err)
+			continue
+		}
+
+		/* Call the plugin's GetReport function and aggregate their reported values */
+		fields := getreport(logitem)
+		if fields != nil {
+			for key, value := range fields {
+				allfields[key] = value
+			}
+		}
+	}
+	return allfields
+}
+
 func run(ctx *cli.Context) error {
+	/* Setup Logging */
+	log := logrus.New()
+	log.SetLevel(logrus.Level(uint32(ctx.Int("log-level"))))
+
 	/* Setup Parameters */
 	diskPath := ctx.String("disk-path")
 	intervalDuration, err := time.ParseDuration(ctx.String("interval"))
@@ -40,12 +82,10 @@ func run(ctx *cli.Context) error {
 		log.Fatalf("Failed to parse interval duration %s: %v", ctx.String("interval"), err)
 		return cli.NewExitError(nil, 1)
 	}
+	pluginPaths := strings.Split(strings.TrimSpace(ctx.String("plugin-paths")), ";")
 
 	/* Setup Runtime Variables */
 	intervalChange := make(chan time.Duration)
-
-	/* Set logging level */
-	log.SetLevel(log.Level(uint32(ctx.Int("log-level"))))
 
 	log.Info("Starting System Monitor Device with interval of ", intervalDuration)
 
@@ -109,6 +149,11 @@ func run(ctx *cli.Context) error {
 			reportStat("load_1min", l.Load1)
 			reportStat("load_5min", l.Load5)
 			reportStat("load_15min", l.Load15)
+		}
+
+		reports := RunPlugins(log, pluginPaths)
+		for topic, report := range reports {
+			reportStat(topic, report)
 		}
 	}
 
@@ -208,6 +253,12 @@ func main() {
 			Value:  defaultDiskMountPath,
 			Usage:  "The mount point of the disk to monitor",
 			EnvVar: "DISK_PATH",
+		},
+		cli.StringFlag{
+			Name:   "plugin-paths",
+			Value:  "",
+			Usage:  "List of plugin file paths seperated by a semicolon",
+			EnvVar: "PLUGIN_PATHS",
 		},
 	}
 	app.Run(os.Args)
