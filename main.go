@@ -139,7 +139,7 @@ func run(ctx *cli.Context) error {
 			reportStat("disk_used", float64(d.Used)/gb)
 			reportStat("disk_free", float64(d.Free)/gb)
 			reportStat("disk_total", float64(d.Total)/gb)
-			reportStat("disk_usedpercent", v.UsedPercent)
+			reportStat("disk_usedpercent", d.UsedPercent)
 		}
 
 		l, err := load.Avg()
