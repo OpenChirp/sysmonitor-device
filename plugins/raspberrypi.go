@@ -1,3 +1,5 @@
+// +build arm
+
 // This plugin simply reports the Raspberry Pi Core Temp
 package main
 
