@@ -157,6 +157,13 @@ func run(ctx *cli.Context) error {
 		}
 	}
 
+	/* Publish current interval */
+	err = c.Publish(intervalTopic, fmt.Sprint(intervalDuration))
+	if err != nil {
+		log.Fatalf("Error publishing to interval topic: %v", err)
+		return cli.NewExitError(nil, 1)
+	}
+
 	/* Subscribe to trigger topic */
 	err = c.Subscribe(triggerTopic, func(topic string, payload []byte) {
 		log.Info("Received trigger to push report")
