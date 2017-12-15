@@ -106,7 +106,7 @@ func run(ctx *cli.Context) error {
 	signals := make(chan os.Signal)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 
-	/* Helper Methonds */
+	/* Helper Methods */
 	reportStat := func(subtopic string, value interface{}) {
 		log.Debugf("Publishing %s: %s", subtopic, fmt.Sprint(value))
 		err = c.Publish(framework.TransducerPrefix+"/"+subtopic, fmt.Sprint(value))
@@ -170,7 +170,7 @@ func run(ctx *cli.Context) error {
 		doreport()
 	})
 	if err != nil {
-		log.Fatalf("Error subscribing to open topic: %v", err)
+		log.Fatalf("Error subscribing to trigger topic: %v", err)
 		return cli.NewExitError(nil, 1)
 	}
 
