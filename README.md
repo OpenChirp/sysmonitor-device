@@ -1,3 +1,4 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/openchirp/sysmonitor-device)](https://goreportcard.com/report/github.com/openchirp/sysmonitor-device)
 # System Monitor OpenChirp Device
 This device will report system statistics at a regular interval.
 Currently, we report the following statistics/topics:
