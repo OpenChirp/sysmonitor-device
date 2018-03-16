@@ -15,6 +15,12 @@
 			"revisionTime": "2018-03-15T09:10:34Z"
 		},
 		{
+			"checksumSHA1": "nbCxiVT48CWEg6l8L4SEJ5VfN9c=",
+			"path": "github.com/golang/groupcache/lru",
+			"revision": "84a468cf14b4376def5d68c722b139b881c450a4",
+			"revisionTime": "2017-11-01T20:31:31Z"
+		},
+		{
 			"checksumSHA1": "IesX9bTXvGj3SBz2tlgBXaYVQ60=",
 			"path": "github.com/openchirp/framework",
 			"revision": "9dcedd3c0fc9b12bd54e83baa2698b6133a745c7",
