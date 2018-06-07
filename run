@@ -13,8 +13,27 @@ export DEVICE_TOKEN=ffffffffffffffffffffffffffffff
 #export INTERVAL=60s
 #export DISK_PATH="/"
 #export PLUGIN_PATHS=plugins/raspberrypi.so
+export PLUGIN_PATHS="plugins/raspberrypi.so;plugins/network.so"
 
+# Install a fake vcgencmd to test the raspberrypi plugin
+tempbin=$(mktemp -d)
+cat > $tempbin/vcgencmd <<EOF
+#!/bin/bash
+
+case \$1 in
+	measure_temp)
+		echo "temp=51.0'C"
+		;;
+	*)
+		echo "Error - Unknown command"
+		;;
+esac
+EOF
+chmod +x $tempbin/vcgencmd
+
+export PATH="$tempbin:$PATH"
 
 # Build the binary first
 go build -o sysmonitor-device main.go
-exec ./sysmonitor-device
+./sysmonitor-device
+rm -rf $tempbin
