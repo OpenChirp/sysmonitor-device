@@ -10,12 +10,12 @@ import (
 	"math"
 	"os"
 	"os/signal"
-	"plugin"
 	"strings"
 	"syscall"
 	"time"
 
 	"github.com/openchirp/framework"
+	"github.com/openchirp/sysmonitor-device/plugins"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/load"
 	"github.com/shirou/gopsutil/mem"
@@ -34,42 +34,6 @@ const (
 	intervalTopic           = framework.TransducerPrefix + "/interval"
 )
 
-func RunPlugins(log *logrus.Logger, paths []string) map[string]string {
-	allfields := make(map[string]string)
-	for _, path := range paths {
-		if path == "" {
-			continue
-		}
-		path = strings.TrimSpace(path)
-		logitem := log.WithField("plugin", path)
-		p, err := plugin.Open(path)
-		if err != nil {
-			logitem.Errorf("Failed to open plugin %s: %v", path, err)
-			continue
-		}
-		sym, err := p.Lookup("GetReport")
-		if err != nil {
-			logitem.Errorf("Failed to find GetReport function: %v", err)
-			continue
-		}
-
-		getreport, ok := sym.(func(log *logrus.Entry) map[string]string)
-		if !ok {
-			logitem.Errorf("GetReport function type is invalid: %v", err)
-			continue
-		}
-
-		/* Call the plugin's GetReport function and aggregate their reported values */
-		fields := getreport(logitem)
-		if fields != nil {
-			for key, value := range fields {
-				allfields[key] = value
-			}
-		}
-	}
-	return allfields
-}
-
 func run(ctx *cli.Context) error {
 	/* Setup Logging */
 	log := logrus.New()
@@ -83,6 +47,10 @@ func run(ctx *cli.Context) error {
 		return cli.NewExitError(nil, 1)
 	}
 	pluginPaths := strings.Split(strings.TrimSpace(ctx.String("plugin-paths")), ";")
+	pluginManager, err := plugins.NewPluginManger(pluginPaths)
+	if err != nil {
+		log.Fatalf("Failed to setup plugin manager: %v", err)
+	}
 
 	/* Setup Runtime Variables */
 	intervalChange := make(chan time.Duration)
@@ -151,7 +119,7 @@ func run(ctx *cli.Context) error {
 			reportStat("load_15min", l.Load15)
 		}
 
-		reports := RunPlugins(log, pluginPaths)
+		reports := pluginManager.GetReports(log)
 		for topic, report := range reports {
 			reportStat(topic, report)
 		}

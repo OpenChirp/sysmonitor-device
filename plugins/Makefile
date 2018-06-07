@@ -10,7 +10,7 @@ TARGETS=$(addsuffix $(PLUGIN_EXT),$(PLUGINS))
 
 all: $(TARGETS)
 
-%$(PLUGIN_EXT): %.go
+%$(PLUGIN_EXT): %/*.go
 	go build -buildmode=plugin $^
 
 clean:
