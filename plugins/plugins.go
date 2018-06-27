@@ -9,15 +9,19 @@ import (
 
 const pluginNewObjectFunction = "NewPlugin"
 
+// Plugin sets the interface that a plugin must provide
 type Plugin interface {
 	GetReport(log *logrus.Entry) map[string]string
 }
 
+// PluginManager holds the context of all loaded plugins
 type PluginManager struct {
 	pluginNames []string
 	plugins     []Plugin
 }
 
+// NewPluginManger tries to load all plugin referenced in `paths` and returns
+// a context that allows fetching reports from them
 func NewPluginManger(paths []string) (*PluginManager, error) {
 	pm := new(PluginManager)
 	pm.plugins = make([]Plugin, len(paths))
@@ -49,6 +53,7 @@ func NewPluginManger(paths []string) (*PluginManager, error) {
 	return pm, nil
 }
 
+// GetReports rounds up all the reports from the loaded plugins
 func (pm *PluginManager) GetReports(log *logrus.Logger) map[string]string {
 	allvalues := make(map[string]string)
 	for i, p := range pm.plugins {
