@@ -9,14 +9,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// NetworkPlugin holds the context for the Network stats plugin
 type NetworkPlugin struct {
 }
 
+// NewPlugin initializes the Network stats plugin
 func NewPlugin() (plugins.Plugin, error) {
 	p := new(NetworkPlugin)
 	return p, nil
 }
 
+// GetReport returns the report with Network stats
 func (p *NetworkPlugin) GetReport(log *logrus.Entry) map[string]string {
 	fail := func(msg string) map[string]string {
 		return map[string]string{

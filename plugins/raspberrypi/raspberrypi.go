@@ -19,10 +19,12 @@ const (
 	vcgencmdPath = "vcgencmd"
 )
 
+// RaspberryPlugin hold the context for Raspberry Pi plugin
 type RaspberryPlugin struct {
 	cmdPath string
 }
 
+// NewPlugin initializes the Raspberry Pi plugin
 func NewPlugin() (plugins.Plugin, error) {
 	p := new(RaspberryPlugin)
 
@@ -34,6 +36,7 @@ func NewPlugin() (plugins.Plugin, error) {
 	return p, nil
 }
 
+// GetReport returns the Raspberry Pi specific core temp
 func (p *RaspberryPlugin) GetReport(log *logrus.Entry) map[string]string {
 	fail := func(msg string) map[string]string {
 		return map[string]string{
