@@ -31,7 +31,6 @@ func NewPluginManger(paths []string) (*PluginManager, error) {
 		p, err := plugin.Open(path)
 		if err != nil {
 			return nil, fmt.Errorf("Failed to open plugin %s: %v", path, err)
-			continue
 		}
 
 		sym, err := p.Lookup(pluginNewObjectFunction)
