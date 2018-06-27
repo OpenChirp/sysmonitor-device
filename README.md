@@ -3,7 +3,7 @@
 This device will report system statistics at a regular interval.
 Currently, we report the following statistics/topics:
 * `mem_total`
-* `mem_avaliable`
+* `mem_available`
 * `mem_used`
 * `mem_usedpercent`
 * `disk_used`
