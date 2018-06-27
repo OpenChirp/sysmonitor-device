@@ -95,7 +95,7 @@ func run(ctx *cli.Context) error {
 			reportError(fmt.Sprintf("Failed to retrieve memory usage: %v", err))
 		} else {
 			reportStat("mem_total", float64(v.Total)/gb)
-			reportStat("mem_avaliable", float64(v.Available)/gb)
+			reportStat("mem_available", float64(v.Available)/gb)
 			reportStat("mem_used", float64(v.Used)/gb)
 			reportStat("mem_usedpercent", v.UsedPercent)
 		}
@@ -232,7 +232,7 @@ func main() {
 		cli.StringFlag{
 			Name:   "plugin-paths",
 			Value:  "",
-			Usage:  "List of plugin file paths seperated by a semicolon",
+			Usage:  "List of plugin file paths separated by a semicolon",
 			EnvVar: "PLUGIN_PATHS",
 		},
 	}
