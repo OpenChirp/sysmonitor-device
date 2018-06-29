@@ -86,7 +86,7 @@ func run(ctx *cli.Context) error {
 		log.Errorf(fmt.Sprint(value))
 		reportStat("error", value)
 	}
-	doreport := func() {
+	doReport := func() {
 		log.Info("Doing Report")
 		gb := math.Pow(1024, 3)
 
@@ -135,7 +135,7 @@ func run(ctx *cli.Context) error {
 	/* Subscribe to trigger topic */
 	err = c.Subscribe(triggerTopic, func(topic string, payload []byte) {
 		log.Info("Received trigger to push report")
-		doreport()
+		doReport()
 	})
 	if err != nil {
 		log.Fatalf("Error subscribing to trigger topic: %v", err)
@@ -160,16 +160,16 @@ func run(ctx *cli.Context) error {
 		return cli.NewExitError(nil, 1)
 	}
 
-	doreport()
+	doReport()
 
 	for {
 		select {
 		case <-time.After(intervalDuration):
-			doreport()
+			doReport()
 		case interval := <-intervalChange:
 			intervalDuration = interval
 			log.Info("Changing interval to ", intervalDuration)
-			doreport()
+			doReport()
 		case sig := <-signals:
 			log.WithField("signal", sig).Info("Received signal")
 			goto cleanup
