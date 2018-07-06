@@ -7,6 +7,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
 	"os/signal"
@@ -21,6 +22,7 @@ import (
 	"github.com/shirou/gopsutil/mem"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
+	"github.com/wercker/journalhook"
 )
 
 const (
@@ -38,6 +40,10 @@ func run(ctx *cli.Context) error {
 	/* Setup Logging */
 	log := logrus.New()
 	log.SetLevel(logrus.Level(uint32(ctx.Int("log-level"))))
+	if ctx.Bool("systemd") {
+		log.AddHook(&journalhook.JournalHook{})
+		log.Out = ioutil.Discard
+	}
 
 	/* Setup Parameters */
 	diskPath := ctx.String("disk-path")
@@ -234,6 +240,11 @@ func main() {
 			Value:  "",
 			Usage:  "List of plugin file paths separated by a semicolon",
 			EnvVar: "PLUGIN_PATHS",
+		},
+		cli.BoolFlag{
+			Name:   "systemd",
+			Usage:  "Indicates that this service can use systemd specific interfaces.",
+			EnvVar: "SYSTEMD",
 		},
 	}
 	app.Run(os.Args)
