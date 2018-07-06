@@ -52,7 +52,11 @@ func run(ctx *cli.Context) error {
 		log.Fatalf("Failed to parse interval duration %s: %v", ctx.String("interval"), err)
 		return cli.NewExitError(nil, 1)
 	}
-	pluginPaths := strings.Split(strings.TrimSpace(ctx.String("plugin-paths")), ";")
+	pluginPathStr := strings.TrimSpace(ctx.String("plugin-paths"))
+	pluginPaths := make([]string, 0)
+	if pluginPathStr != "" {
+		pluginPaths = strings.Split(pluginPathStr, ";")
+	}
 	pluginManager, err := plugins.NewPluginManger(pluginPaths)
 	if err != nil {
 		log.Fatalf("Failed to setup plugin manager: %v", err)
