@@ -9,6 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const topicPrefix = "net_"
+
 // NetworkPlugin holds the context for the Network stats plugin
 type NetworkPlugin struct {
 }
@@ -36,14 +38,14 @@ func (p *NetworkPlugin) GetReport(log *logrus.Entry) map[string]string {
 
 	for _, s := range stats {
 		name := s.Name
-		values[fmt.Sprintf("%s_bytesrecv", name)] = fmt.Sprint(s.BytesRecv)
-		values[fmt.Sprintf("%s_bytessend", name)] = fmt.Sprint(s.BytesSent)
-		values[fmt.Sprintf("%s_errin", name)] = fmt.Sprint(s.Errin)
-		values[fmt.Sprintf("%s_errout", name)] = fmt.Sprint(s.Errout)
-		values[fmt.Sprintf("%s_dropin", name)] = fmt.Sprint(s.Dropin)
-		values[fmt.Sprintf("%s_dropout", name)] = fmt.Sprint(s.Dropout)
-		values[fmt.Sprintf("%s_packetsrecv", name)] = fmt.Sprint(s.PacketsRecv)
-		values[fmt.Sprintf("%s_packetssent", name)] = fmt.Sprint(s.PacketsSent)
+		values[fmt.Sprintf("%s%s_bytesrecv", topicPrefix, name)] = fmt.Sprint(s.BytesRecv)
+		values[fmt.Sprintf("%s%s_bytessend", topicPrefix, name)] = fmt.Sprint(s.BytesSent)
+		values[fmt.Sprintf("%s%s_errin", topicPrefix, name)] = fmt.Sprint(s.Errin)
+		values[fmt.Sprintf("%s%s_errout", topicPrefix, name)] = fmt.Sprint(s.Errout)
+		values[fmt.Sprintf("%s%s_dropin", topicPrefix, name)] = fmt.Sprint(s.Dropin)
+		values[fmt.Sprintf("%s%s_dropout", topicPrefix, name)] = fmt.Sprint(s.Dropout)
+		values[fmt.Sprintf("%s%s_packetsrecv", topicPrefix, name)] = fmt.Sprint(s.PacketsRecv)
+		values[fmt.Sprintf("%s%s_packetssent", topicPrefix, name)] = fmt.Sprint(s.PacketsSent)
 	}
 	return values
 }
