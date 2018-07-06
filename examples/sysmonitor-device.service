@@ -1,0 +1,28 @@
+[Unit]
+Description=The OpenChirp System Monitor
+Documentation=https://github.com/OpenChirp/sysmonitor-device
+After=network-online.target auditd.service
+
+[Service]
+DynamicUser=yes
+# If using the Raspberry Pi plugin, uncomment the following line
+# that grants the service video rights. It is needed for the vcgencmd command.
+#SupplementaryGroups=video
+EnvironmentFile=/etc/openchirp.env
+EnvironmentFile=/etc/sysmonitor-device.env
+ExecStart=/usr/sbin/sysmonitor-device
+#ExecReload=/bin/kill -HUP $MAINPID
+#KillMode=process
+Restart=on-failure
+RestartSec=5
+#RestartPreventExitStatus=25
+#Type=notify
+
+CPUQuota=20%
+MemoryHigh=40M
+MemoryMax=75M
+
+
+[Install]
+WantedBy=multi-user.target
+Alias=sysmon.service
