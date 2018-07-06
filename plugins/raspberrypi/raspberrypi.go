@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	// vcgencmdPath = "/usr/bin/vcgencmd"
-	vcgencmdPath = "vcgencmd"
+	vcgencmdPath = "/usr/bin/vcgencmd"
+	// vcgencmdPath = "vcgencmd"
 )
 
 // RaspberryPlugin hold the context for Raspberry Pi plugin
