@@ -26,14 +26,14 @@ import (
 )
 
 const (
-	version string = "1.0"
+	version string = "2.0"
 )
 
 const (
 	defaultIntervalDuration = "60s"
 	defaultDiskMountPath    = "/"
-	triggerTopic            = framework.TransducerPrefix + "/trigger"
-	intervalTopic           = framework.TransducerPrefix + "/interval"
+	triggerTopic            = "trigger"
+	intervalTopic           = "interval"
 )
 
 func run(ctx *cli.Context) error {
