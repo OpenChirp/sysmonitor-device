@@ -81,7 +81,7 @@ func run(ctx *cli.Context) error {
 	log.Info("Started device")
 
 	/* Setup signal channel */
-	signals := make(chan os.Signal)
+	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, os.Interrupt, syscall.SIGTERM)
 
 	/* Helper Methods */
