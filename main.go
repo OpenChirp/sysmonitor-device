@@ -87,7 +87,7 @@ func run(ctx *cli.Context) error {
 	/* Helper Methods */
 	reportStat := func(subtopic string, value interface{}) {
 		log.Debugf("Publishing %s: %s", subtopic, fmt.Sprint(value))
-		err = c.Publish(framework.TransducerPrefix+"/"+subtopic, fmt.Sprint(value))
+		err = c.Publish(subtopic, fmt.Sprint(value))
 		if err != nil {
 			log.Errorf("Error publishing %s: %v", subtopic, err)
 		}
