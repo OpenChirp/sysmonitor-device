@@ -14,6 +14,7 @@ export DEVICE_TOKEN=ffffffffffffffffffffffffffffff
 #export DISK_PATH="/"
 #export PLUGIN_PATHS=plugins/raspberrypi.so
 export PLUGIN_PATHS="plugins/raspberrypi.so;plugins/network.so"
+#export SYSTEMD=true
 
 # Install a fake vcgencmd to test the raspberrypi plugin
 tempbin=$(mktemp -d)
