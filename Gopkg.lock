@@ -56,7 +56,7 @@
   version = "v1.0.1"
 
 [[projects]]
-  digest = "1:80fdc55a0cb966ab3e4d3579cc32276dcc22e2bc1bfaaed2808ff7fc75054116"
+  digest = "1:62d5b2ef1c6581f97c3ee6210ce5a8da196077c5be04175c02b539ecc7f0f406"
   name = "github.com/openchirp/framework"
   packages = [
     ".",
@@ -64,7 +64,7 @@
     "rest",
   ]
   pruneopts = "UT"
-  revision = "9d74c8c1ccd83bff51081bd187494a0d81dd65ed"
+  revision = "cdaad003029612e522530bafc723a71634ee7d14"
   version = "v1.1"
 
 [[projects]]
@@ -123,7 +123,7 @@
     "websocket",
   ]
   pruneopts = "UT"
-  revision = "891ebc4b82d6e74f468c533b06f983c7be918a96"
+  revision = "e147a9138326bc0e9d4e179541ffd8af41cff8a9"
 
 [[projects]]
   branch = "master"
