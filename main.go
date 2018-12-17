@@ -195,7 +195,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "example-device"
 	app.Usage = ""
-	app.Copyright = "See https://github.com/openchirp/example-device for copyright information"
+	app.Copyright = "See https://github.com/openchirp/sysmonitor-device for copyright information"
 	app.Version = version
 	app.Action = run
 	app.Flags = []cli.Flag{
